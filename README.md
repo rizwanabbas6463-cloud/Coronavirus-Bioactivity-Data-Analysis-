@@ -1,49 +1,59 @@
-# 🧬 Coronavirus Bioactivity Data Analysis using ChEMBL
+# 🧬 Coronavirus Bioactivity Analysis using ChEMBL & RDKit
 
-This project retrieves, processes, and classifies bioactivity data for compounds targeting the **SARS Coronavirus 3C-like proteinase** (CHEMBL3927) using the **ChEMBL database**.  
-It demonstrates how to collect, clean, and prepare biological activity data for further **machine learning or drug discovery** analysis.
+This project demonstrates a **complete cheminformatics workflow** for analyzing bioactivity data of compounds targeting the **SARS Coronavirus 3C-like proteinase** (`CHEMBL3927`) using the **ChEMBL database** and **RDKit**.  
+
+It covers everything from **data retrieval and preprocessing** to **Lipinski descriptor computation, classification, and statistical evaluation**, enabling insights for **drug discovery** and **machine learning-based prediction**.
 
 ---
 
 ## 📖 Project Overview
 
-This notebook performs the following main tasks:
+This notebook performs the following key steps:
 
+### **🔹 Phase 1: Data Retrieval and Preprocessing**
 1. **Target Search** – Searches the ChEMBL database for coronavirus-related targets.  
-2. **Target Selection** – Selects the SARS-CoV 3C-like proteinase (`CHEMBL3927`) as the primary target.  
+2. **Target Selection** – Selects the *SARS-CoV 3C-like proteinase* (`CHEMBL3927`) as the main target.  
 3. **Activity Retrieval** – Retrieves compound bioactivity data (IC50 values) against the selected target.  
 4. **Data Cleaning** – Removes missing or invalid values to ensure clean, usable data.  
-5. **Bioactivity Classification** – Categorizes compounds as:
+5. **Bioactivity Classification** – Categorizes compounds based on IC50:
    - **Active:** IC50 ≤ 1000 nM  
    - **Intermediate:** 1000 < IC50 < 10000 nM  
    - **Inactive:** IC50 ≥ 10000 nM  
-6. **Feature Selection** – Selects key columns:
+6. **Feature Selection** – Retains key columns:
    - `molecule_chembl_id`
    - `canonical_smiles`
    - `standard_value`
-7. **Data Export** – Saves both raw and preprocessed data to CSV files:
+7. **Data Export** – Saves both raw and preprocessed datasets:
    - `bioactivity_data.csv`
    - `bioactivity_preprocessed_data.csv`
-8. **Google Drive Integration** – Automatically saves outputs to Google Drive for storage or further use.
+8. **Google Drive Integration** – Automatically uploads output files to Google Drive for further use.
 
 ---
 
-## 📦 Files Generated
-
-| File Name | Description |
-|------------|-------------|
-| `bioactivity_data.csv` | Raw bioactivity data retrieved from ChEMBL |
-| `bioactivity_preprocessed_data.csv` | Cleaned and classified bioactivity dataset |
-
----
-
-## 🧰 Tools & Libraries Used
-
-- **Python 3**
-- **Pandas** – For data manipulation and analysis  
-- **ChEMBL WebResource Client** – To fetch data from the ChEMBL database  
-- **Google Colab** – For running and saving notebooks  
-- **Google Drive** – To store and organize dataset outputs  
+### **🔹 Phase 2: Lipinski Descriptors & Statistical Analysis**
+1. **Setup RDKit** – Install and configure RDKit in Google Colab using Miniconda.  
+2. **Molecular Descriptor Calculation** using RDKit:
+   - Molecular Weight (MW)  
+   - LogP (Octanol–Water Partition Coefficient)  
+   - Number of Hydrogen Donors  
+   - Number of Hydrogen Acceptors  
+3. **Compute pIC50** using the formula:  
+   \[
+   pIC50 = -\log_{10}(IC50 \times 10^{-9})
+   \]
+4. **Reclassify Compounds** based on pIC50:
+   - `Active`: pIC50 ≥ 6  
+   - `Inactive`: pIC50 ≤ 5  
+   *(Intermediate class removed)*  
+5. **Exploratory Data Analysis (EDA)**:
+   - Frequency distribution of bioactivity classes  
+   - Scatter plot (MW vs LogP)  
+   - Box plots for pIC50, MW, LogP, NumHDonors, and NumHAcceptors  
+6. **Statistical Testing**:
+   - Perform the **Mann–Whitney U Test** to compare descriptor distributions between active and inactive molecules.  
+7. **Result Export**:
+   - Export all processed data as `.csv` and visualizations as `.pdf`
+   - Compress into `results.zip` for easy sharing or downstream analysis.
 
 ---
 
