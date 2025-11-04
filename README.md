@@ -1,50 +1,61 @@
-# 🧬 Coronavirus & Acetylcholinesterase Bioactivity Analysis using ChEMBL, RDKit & Machine Learning
+# 🧬 Computational Drug Discovery Project  
+### Predicting Bioactivity of Acetylcholinesterase Inhibitors using Machine Learning   
+**Course:** Bioinformatics Project  
+**Project Type:** Computational Drug Discovery  
+**Tools:** Python, scikit-learn, pandas, seaborn, RDKit  
 
-This project demonstrates a **complete cheminformatics and bioactivity modeling pipeline** — from retrieving biological data using **ChEMBL**, processing it with **RDKit**, and applying **machine learning** (Random Forest) to classify compound activity.
+## 📖 Overview  
 
-It integrates three major phases:
-1. **Bioactivity Data Retrieval** from ChEMBL (SARS-CoV Target)  
-2. **Molecular Descriptor & Statistical Analysis** using RDKit  
-3. **Bioactivity Prediction Model** using Machine Learning on Acetylcholinesterase data  
+This project focuses on **computational drug discovery** targeting the **Acetylcholinesterase (AChE) enzyme**, which plays a critical role in Alzheimer’s disease. The main goal is to identify and model bioactive compounds capable of inhibiting this enzyme using cheminformatics and machine learning techniques.
+
+The project consists of the following four parts:
+
+| Part | Title | Description |
+| **1** | Data Collection | Retrieve bioactivity data of acetylcholinesterase inhibitors from ChEMBL database |
+| **2** | Data Preprocessing | Process and clean molecular data; calculate molecular descriptors |
+| **3** | Exploratory Data Analysis | Analyze molecular features and bioactivity class distributions |
+| **4** | Regression Modeling | Build a Random Forest regression model to predict pIC50 values |
 
 ---
 
-## 🧠 Project Overview
+## 🧩 Part 1 — Bioactivity Data Collection  
 
-### 🔹 **Phase 1: ChEMBL Coronavirus Bioactivity Retrieval**
+The dataset was obtained from the **ChEMBL Database** using Python scripts to fetch compounds tested against the target **Acetylcholinesterase (AChE)**.
 
-This phase retrieves and processes compound bioactivity data targeting the **SARS-CoV 3C-like proteinase (CHEMBL3927)**.
+**Data Columns:**
+- `molecule_chembl_id`
+- `canonical_smiles`
+- `standard_value`
+- `standard_units`
+- `pIC50` (calculated bioactivity measure)
 
-#### Steps:
-1. **Search for Coronavirus Targets** in the ChEMBL database  
-2. **Select SARS-CoV 3C-like proteinase (`CHEMBL3927`)**  
-3. **Retrieve compound bioactivities (IC50 values)**  
-4. **Clean and filter** missing or invalid data  
-5. **Classify compounds** based on IC50:
-   - Active: IC50 ≤ 1000 nM  
-   - Intermediate: 1000 < IC50 < 10000 nM  
-   - Inactive: IC50 ≥ 10000 nM  
-6. **Save clean datasets**:
-   - `bioactivity_data.csv`
-   - `bioactivity_preprocessed_data.csv`
+After cleaning, the dataset was saved as:  
+`acetylcholinesterase_01_bioactivity_data_raw.csv`
 
-#### Example Code:
+---
+
+## ⚙️ Part 2 — Data Preprocessing & Descriptor Calculation  
+
+**Objective:** Convert chemical structures (SMILES) into machine-readable molecular fingerprints.
+
+### Steps:
+1. Remove missing values and invalid entries.  
+2. Calculate **PubChem molecular fingerprints (881 binary features)** using RDKit.  
+3. Merge these descriptors with the target variable `pIC50`.
+
+**Final dataset:**  
+`acetylcholinesterase_06_bioactivity_data_3class_pIC50_pubchem_fp.csv`
+
+---
+
+## 📊 Part 3 — Exploratory Data Analysis (EDA)  
+
+We analyzed the distribution of `pIC50` values to classify compounds into:
+- **Active** (pIC50 ≥ 6)
+- **Intermediate** (5 ≤ pIC50 < 6)
+- **Inactive** (pIC50 < 5)
+
+Visualization examples:
 ```python
-from chembl_webresource_client.new_client import new_client
-import pandas as pd
-
-target = new_client.target
-target_query = target.search('coronavirus')
-targets = pd.DataFrame.from_dict(target_query)
-
-selected_target = targets.target_chembl_id[6]
-activity = new_client.activity
-res = activity.filter(target_chembl_id=selected_target).filter(standard_type="IC50")
-
-df = pd.DataFrame.from_dict(res)
-df2 = df[df.standard_value.notna()]
-bioactivity_class = ['active' if float(i)<=1000 else 'inactive' if float(i)>=10000 else 'intermediate' for i in df2.standard_value]
-
-df3 = df2[['molecule_chembl_id', 'canonical_smiles', 'standard_value']]
-df3['bioactivity_class'] = bioactivity_class
-df3.to_csv('bioactivity_preprocessed_data.csv', index=False)
+sns.histplot(df['pIC50'], kde=True)
+plt.title('Distribution of pIC50 Values')
